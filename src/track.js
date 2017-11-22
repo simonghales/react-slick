@@ -5,7 +5,7 @@ import assign from 'object-assign';
 import classnames from 'classnames';
 
 var getSlideClasses = (spec) => {
-  var slickActive, slickCenter, slickCloned;
+  var slickActive, slickCenter, slickCenterPrevious, slickCenterNext, slickCloned;
   var centerOffset, index;
 
   if (spec.rtl) {
@@ -16,7 +16,9 @@ var getSlideClasses = (spec) => {
   slickCloned = (index < 0) || (index >= spec.slideCount);
   if (spec.centerMode) {
     centerOffset = Math.floor(spec.slidesToShow / 2);
+    slickCenterNext = ((index - 1) - spec.currentSlide) % spec.slideCount === 0;
     slickCenter = (index - spec.currentSlide) % spec.slideCount === 0;
+    slickCenterPrevious = ((index + 1) - spec.currentSlide) % spec.slideCount === 0;
     if ((index > spec.currentSlide - centerOffset - 1) && (index <= spec.currentSlide + centerOffset)) {
       slickActive = true;
     }
@@ -26,7 +28,9 @@ var getSlideClasses = (spec) => {
   return classnames({
     'slick-slide': true,
     'slick-active': slickActive,
+    'slick-centerPrevious': slickCenterPrevious,
     'slick-center': slickCenter,
+    'slick-centerNext': slickCenterNext,
     'slick-cloned': slickCloned
   });
 };
@@ -50,8 +54,8 @@ var getSlideStyle = function (spec) {
 };
 
 var getKey = (child, fallbackKey) => {
-    // key could be a zero
-    return (child.key === null || child.key === undefined) ? fallbackKey : child.key;
+  // key could be a zero
+  return (child.key === null || child.key === undefined) ? fallbackKey : child.key;
 };
 
 var renderSlides = function (spec) {
@@ -79,7 +83,7 @@ var renderSlides = function (spec) {
     var childStyle = getSlideStyle(assign({}, spec, {index: index}));
     const slideClass = child.props.className || ''
 
-    const onClick = function(e) {
+    const onClick = function (e) {
       child.props && child.props.onClick && child.props.onClick(e)
       if (spec.focusOnSelect) {
         spec.focusOnSelect(childOnClickOptions)
